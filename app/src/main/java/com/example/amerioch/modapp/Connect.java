@@ -35,7 +35,7 @@ public class Connect extends ActionBarActivity {
     private TextView usernameTextView;
     private TextView passwordTextView;
     private Set<BluetoothDevice> devices;
-    private final String  URL_REMOTE_DB = "jdbc:mysql://db4free.net:3306/tfsapp";
+    private final String  URL_REMOTE_DB = "jdbc:mysql://db4free.net:3306/";
     private final String  PASS = "nonsesabe";
     private final String  DBNAME = "tfsapp";
     private final String  TABLENAME = "users";
@@ -64,10 +64,16 @@ public class Connect extends ActionBarActivity {
     private void sendLoginToDB() throws IOException {
         connectionDialog();
         DataBaseInteraction dB = new DataBaseInteraction(URL_REMOTE_DB,PASS,DBNAME);
+
         Log.d(TAG,"Siamo qui");
         dB.connectToDB();
-        dB.insertRow(TABLENAME,"pip","ok",true,"192.168.2.1");
-        dB.insertRow(TABLENAME,"giacomo","non",false,"193.65.42.1");
+        if(dB.connectionOK())
+            Log.d(TAG, "Connected");
+
+
+         if(dB.insertRow(TABLENAME, "pip", "ok", true, "192.168.2.1"))  Log.d(TAG,"Inserted");
+            dB.insertRow(TABLENAME, "giacomo", "non", false, "193.65.42.1");
+
 
         //Unable the button serveur (avoid clicking twice or more)
         usernameTextView = (TextView) findViewById(R.id.username);

@@ -44,7 +44,7 @@ public class DataBaseInteraction {
         }
     }
 
-    public long insertRow(String table, String username, String password, Boolean connected, String ip) {
+    public boolean insertRow(String table, String username, String password, Boolean connected, String ip) {
 
             String insert = "INSERT INTO " + table +"(`username`,";
             insert += "`password`, `ip`, `connected`) VALUES";
@@ -52,7 +52,15 @@ public class DataBaseInteraction {
 
 
             try{cmd.executeUpdate(insert);}
-            catch(Exception e){}
-            return 0;
+            catch(Exception e){return false;}
+            return true;
+    }
+
+    public boolean connectionOK(){
+            if(conn == null)
+                return false;
+            else
+                return true;
+
     }
 }
