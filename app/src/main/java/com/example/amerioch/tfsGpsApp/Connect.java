@@ -1,11 +1,12 @@
 package com.example.amerioch.tfsGpsApp;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.support.v7.app.ActionBarActivity;
@@ -27,19 +28,22 @@ import java.util.Enumeration;
 import java.util.Set;
 
 
-public class Connect extends Activity {
+public class Connect extends ActionBarActivity {
 
     private final static int REQUEST_ENABLE_BT = 1;
-    public final static String TAG = "RAMON"; //TAG used to debug the program with Log.d()
+    private final static String TAG = "RAMON"; //TAG used to debug the program with Log.d()
 
     private Button buttonSendLogin;
     private TextView usernameTextView;
     private TextView passwordTextView;
     private Set<BluetoothDevice> devices;
-    private final String  URL_REMOTE_DB = "jdbc:mysql://upkk6fb1ab4b.planaspa.koding.io:3306/";
-    private final String  PASS = "nonsesabe";
-    private final String  DBNAME = "tfsGpsApp";
-    private final String  TABLENAME = "users";
+    private final String  URL_REMOTE_DB = "jdbc:mysql://sql2.freemysqlhosting.net:3306/sql285144";
+
+    private final String  PASS = AccountData.PASS;
+    private final String  USERNAME = AccountData.USERNAME;
+    private final String  TABLENAME = AccountData.TABLENAME;
+
+    DataBaseInteraction dB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,15 +54,14 @@ public class Connect extends Activity {
         this.buttonSendLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainScreen = new Intent(Connect.this, MainScreen.class);
-                startActivity(mainScreen);
-                /*try {
+                try {
                     //We send the login values (username+pass)
+                    Intent mainScreen = new Intent(Connect.this, MainScreen.class);
+                    startActivity(mainScreen);
                     sendLoginToDB();
-
                 } catch (IOException e) {
                     e.printStackTrace();
-                }*/
+                }
             }
         });
 
@@ -67,16 +70,31 @@ public class Connect extends Activity {
     //we're the server
     private void sendLoginToDB() throws IOException {
         connectionDialog();
-        DataBaseInteraction dB = new DataBaseInteraction(URL_REMOTE_DB,PASS,DBNAME);
 
-        Log.d(TAG,"Siamo qui");
-        dB.connectToDB();
-        if(dB.connectionOK())
-            Log.d(TAG, "Connected");
+        Log.d(TAG, "Siamo qui");
+        dB = new DataBaseInteraction(URL_REMOTE_DB,PASS,USERNAME);
+        Thread thread = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    dB.connectToDB();
+
+                    if(dB.connectionOK())
+                        Log.d(TAG, "Connected");
+                    else
+                        Log.d(TAG, "not Connected");
+
+                    if(dB.insertRow(TABLENAME, "pip", "ok", true, "192.168.2.1"))  Log.d(TAG,"Inserted");
+                    dB.insertRow(TABLENAME, "giacomo", "non", false, "193.65.42.1");
+                    dB.readData("giacomo");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
 
 
-         if(dB.insertRow(TABLENAME, "pip", "ok", true, "192.168.2.1"))  Log.d(TAG,"Inserted");
-            dB.insertRow(TABLENAME, "giacomo", "non", false, "193.65.42.1");
 
 
         //Unable the button serveur (avoid clicking twice or more)
@@ -84,7 +102,8 @@ public class Connect extends Activity {
         passwordTextView = (TextView) findViewById(R.id.password);
         String username = usernameTextView.getText().toString();
         String password = passwordTextView.getText().toString();
-        DataBaseInteraction dataDBremote 	= new DataBaseInteraction(URL_REMOTE_DB,PASS,DBNAME);
+       // TextView texte_attente = (TextView) findViewById(R.id.texte_attente);
+        //texte_attente.setText("* WAITING CLIENT TO CONNECT *");
         //Create the server thread passing the bluetooth device paired to us in order to create the socket
         //ServerThread serverConnexion = new ServerThread(bluetooth,devices.iterator().next().getName(),this);
         //Run the server thread
@@ -96,10 +115,10 @@ public class Connect extends Activity {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
 
-            //For 3G check
-            boolean connected3g = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting();
-            //For WiFi Check
-            boolean connectedWifi = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnectedOrConnecting();
+        //For 3G check
+        boolean connected3g = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting();
+        //For WiFi Check
+        boolean connectedWifi = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnectedOrConnecting();
 
         if (!connected3g && !connectedWifi){
             new AlertDialog.Builder(this)
@@ -125,6 +144,28 @@ public class Connect extends Activity {
     private void activateWifi(){
         WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
         wifiManager.setWifiEnabled(true);
+    }
+
+    public static String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en =
+                 NetworkInterface.getNetworkInterfaces(); en
+                         .hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr =
+                     intf.getInetAddresses(); enumIpAddr
+                             .hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement
+                            ();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress().toString();
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            Log.e(TAG, ex.toString());
+        }
+        return null;
     }
 
     public static String getipAddress() {
@@ -189,4 +230,5 @@ public class Connect extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
