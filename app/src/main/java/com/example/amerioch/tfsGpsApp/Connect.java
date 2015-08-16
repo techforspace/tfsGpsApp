@@ -16,7 +16,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -24,6 +26,7 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Set;
 
@@ -34,16 +37,18 @@ public class Connect extends ActionBarActivity {
     private final static String TAG = "RAMON"; //TAG used to debug the program with Log.d()
 
     private Button buttonSendLogin;
+    private Button buttonRegister;
     private TextView usernameTextView;
     private TextView passwordTextView;
     private Set<BluetoothDevice> devices;
-    private final String  URL_REMOTE_DB = "jdbc:mysql://sql2.freemysqlhosting.net:3306/sql285144";
+    private GpsClass gps;
+    private final String  URL_REMOTE_DB = AccountData.URLDB;
+    public static DataBaseInteraction dB;
 
     private final String  PASS = AccountData.PASS;
     private final String  USERNAME = AccountData.USERNAME;
-    private final String  TABLENAME = AccountData.TABLENAME;
-
-    DataBaseInteraction dB;
+    private final String  USERSTABLENAME = AccountData.USERSTABLENAME;
+    private final String  FRIENDSTABLENAME = AccountData.FRIENDSTABLENAME;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,66 +59,61 @@ public class Connect extends ActionBarActivity {
         this.buttonSendLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    //We send the login values (username+pass)
-                    Intent mainScreen = new Intent(Connect.this, MainScreen.class);
-                    startActivity(mainScreen);
-                    sendLoginToDB();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                    //Load the Password and Username fields from the GUI
+                    EditText pass = (EditText) findViewById(R.id.password);
+                    EditText user = (EditText) findViewById(R.id.username);
+
+                    //Enable connections (GPS and Internet)
+                    connectionInternetGPSDialog();
+                    /*Create new DB connexion from the user + pass, if the user is not register we won't be able to pass
+                    *from this activity to the next one
+                    */
+                    dB = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
+                    try {
+                        dB.connectToDB();
+                        dB.online(USERSTABLENAME,user.getText().toString());
+                        Intent mainScreen = new Intent(Connect.this, MainScreen.class);
+                        startActivity(mainScreen);
+                    }catch (SQLException sql){
+                        System.out.println("SQLException: " + sql.getMessage());
+                        System.out.println("SQLState: " + sql.getSQLState());
+                        System.out.println("Error: " + sql.getErrorCode());
+                        System.out.println("StackTrace: " + sql.getStackTrace());
+                        Toast.makeText(getApplicationContext(), "ERROR while connecting, try again",
+                                Toast.LENGTH_LONG).show();
+                    }
             }
         });
 
-    }
-
-    //we're the server
-    private void sendLoginToDB() throws IOException {
-        connectionDialog();
-
-        Log.d(TAG, "Siamo qui");
-        dB = new DataBaseInteraction(URL_REMOTE_DB,PASS,USERNAME);
-        Thread thread = new Thread(new Runnable(){
+        this.buttonRegister = (Button) findViewById(R.id.buttonRegister);
+        this.buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                try {
-                    dB.connectToDB();
-
-                    if(dB.connectionOK())
-                        Log.d(TAG, "Connected");
-                    else
-                        Log.d(TAG, "not Connected");
-
-                    if(dB.insertRow(TABLENAME, "pip", "ok", true, "192.168.2.1"))  Log.d(TAG,"Inserted");
-                    dB.insertRow(TABLENAME, "giacomo", "non", false, "193.65.42.1");
-                    dB.readData("giacomo");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            public void onClick(View v) {
+                    Intent registerScreen = new Intent(Connect.this, Register.class);
+                    startActivity(registerScreen);
             }
         });
-        thread.start();
 
 
-
-
-        //Unable the button serveur (avoid clicking twice or more)
-        usernameTextView = (TextView) findViewById(R.id.username);
-        passwordTextView = (TextView) findViewById(R.id.password);
-        String username = usernameTextView.getText().toString();
-        String password = passwordTextView.getText().toString();
-       // TextView texte_attente = (TextView) findViewById(R.id.texte_attente);
-        //texte_attente.setText("* WAITING CLIENT TO CONNECT *");
-        //Create the server thread passing the bluetooth device paired to us in order to create the socket
-        //ServerThread serverConnexion = new ServerThread(bluetooth,devices.iterator().next().getName(),this);
-        //Run the server thread
-        //serverConnexion.start();
     }
 
-    private void connectionDialog(){
+    private void connectionInternetGPSDialog(){
 
         ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
+        //For GPS Check
+        this.gps = new GpsClass(Connect.this);
+
+        // Check if GPS enabled
+        if(gps.canGetLocation()) {
+
+            double latitude = gps.getLatitude();
+            double longitude = gps.getLongitude();
+
+            // \n is for new line
+            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+        } else {gps.showSettingsAlert();}
 
         //For 3G check
         boolean connected3g = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting();
@@ -201,12 +201,6 @@ public class Connect extends ActionBarActivity {
         }catch(Exception e){
             e.printStackTrace();
         }
-    }
-
-    //Launch the second activity "Measure"
-    public void launchMeasures(){
-        Intent measures = new Intent(this, Mesure.class);
-        startActivity(measures);
     }
 
     @Override

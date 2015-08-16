@@ -1,11 +1,15 @@
 package com.example.amerioch.tfsGpsApp;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by ramon on 8/07/15.
@@ -32,26 +36,68 @@ public class DataBaseInteraction {
     }
 
 
-    public void connectToDB() {
-        try {
-            conn = DriverManager.getConnection(url, username, pass);
-            //Creiamo un oggetto Statement per poter interrogare il db
+    public void connectToDB() throws SQLException{
+        conn = DriverManager.getConnection(url, username, pass);
+        if(conn!=null) {
+            //Creation of a Statement object to be able to connect to the DB
             cmd = conn.createStatement();
-        } catch (Exception e) {
-            Log.i("DB connection rejected", "" + e.getMessage() + " " + e.getCause());
         }
-        if(cmd!=null)
-            Log.d("comando command","not null");
-        else
-            Log.d("comando command","null");
-
     }
 
-    public boolean insertRow(String table, String username, String password, boolean connected, String ip) {
+    public boolean removeFriend(String table, String username, String friend) {
+
+        String insert = "DELETE FROM " + table +" WHERE ";
+        insert += "`username`='" + username +"' AND `friend`='" + friend + "'";
+
+        try{cmd.executeUpdate(insert);}
+        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        return true;
+    }
+
+    public ArrayList<String> getFriends(String table, String username){
+        ArrayList<String> friends = new ArrayList<String>();
+        //It should return the friends username
+        String insert = "SELECT friend FROM "+table+ " WHERE `username`='" + username + "'";
+        try{
+            res = cmd.executeQuery(insert);
+            while(res.next()) {
+                friends.add(res.getString("friend"));
+            }
+            Log.d("Ramon", "Friends: " +friends);
+        }
+        catch(SQLException sql){
+            Log.d("Ramon", "SQL error getting friends");
+        }
+
+        return friends;
+    }
+
+    public boolean removeUser(String table, String username, String friend) {
+
+        String insert = "DELETE FROM " + table +" WHERE ";
+        insert += "`username`='" + username +"'";
+
+        try{cmd.executeUpdate(insert);}
+        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        return true;
+    }
+
+    public boolean addFriend(String table, String username, String friend) {
 
         String insert = "INSERT INTO " + table +"(`username`,";
-        insert += "`password`, `ip`, `status`) VALUES";
-        insert += "('" + username + "','" + password + "','" + ip + "'," + connected + ")";
+        insert += "`friend`) VALUES";
+        insert += "('" + username + "','" + friend + "')";
+
+        try{cmd.executeUpdate(insert);}
+        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        return true;
+    }
+
+    public boolean insertNewUser(String table, String username, String password, boolean connected, double lat, double lon) throws SQLException{
+
+        String insert = "INSERT INTO " + table +"(`username`,";
+        insert += "`password`, `status`, `lat`, `long`) VALUES";
+        insert += "('" + username + "','" + password + "'," + connected +  "'," + lat + "," + lon +")";
 
 
         try{cmd.executeUpdate(insert);}
@@ -59,15 +105,52 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public boolean readData (String friend){
+    public boolean updatePosition(String table, String username, double lat, double lon) {
 
-        String insert = "SELECT password FROM users WHERE `username`='" + friend + "'";
+        String insert = "UPDATE " + table +" SET ";
+        insert += "`lat`=" + lat + ", `long`=" + lon;
+        insert += "WHERE `username` = '" + username +"'";
+
+        try{cmd.executeUpdate(insert);}
+        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        return true;
+    }
+
+    public boolean online(String table, String username) {
+
+        String insert = "UPDATE " + table +" SET ";
+        insert += "`status`= 'online'";
+        insert += "WHERE `username` = '" + username +"'";
+
+        try{cmd.executeUpdate(insert);}
+        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        return true;
+    }
+
+    public boolean offline(String table, String username) {
+
+        String insert = "UPDATE " + table +" SET ";
+        insert += "`status`= 'offline'";
+        insert += "WHERE `username` = '" + username +"'";
+
+        try{cmd.executeUpdate(insert);}
+        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        return true;
+    }
+
+    public boolean readPosition(String friend){
+
+        String insert = "SELECT lat, long FROM users WHERE `username`='" + friend + "'";
         String output="No funciona";
+        double lat;
+        double lon;
         try{
             res = cmd.executeQuery(insert);
-            if(res.next())
-                output = res.getString("password");
-                Log.d("Ramon", output);
+            if(res.next()) {
+                lat = res.getDouble("lat");
+                lon = res.getDouble("long");
+                Log.d("Ramon", "Position: " + lat + " AND " + lon);
+            }
         }
         catch(Exception e){
             return false;
