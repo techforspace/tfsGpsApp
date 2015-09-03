@@ -43,7 +43,7 @@ public class Register extends Activity{
                                 DataBaseInteraction dBInteraction = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
                                 dBInteraction.connectToDB();
                                 try {
-                                    dBInteraction.insertNewUser(AccountData.USERSTABLENAME, user.getText().toString(), pass.getText().toString(), false, 0.0, 0.0);
+                                    dBInteraction.insertNewUser(AccountData.USERSTABLENAME, user.getText().toString(), pass.getText().toString(), false, 0.0, 0.0, 0.0);
                                     Toast.makeText(getApplicationContext(), "Congratulations you have been correctly registered!",
                                             Toast.LENGTH_LONG).show();
                                 } catch (SQLException sql) {

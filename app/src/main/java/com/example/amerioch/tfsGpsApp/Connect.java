@@ -49,7 +49,7 @@ public class Connect extends ActionBarActivity {
     private final String  USERNAME = AccountData.USERNAME;
     private final String  USERSTABLENAME = AccountData.USERSTABLENAME;
     private final String  FRIENDSTABLENAME = AccountData.FRIENDSTABLENAME;
-    double latitude, longitude;
+    double latitude, longitude, altitude;
     String username;
 
     @Override
@@ -80,7 +80,7 @@ public class Connect extends ActionBarActivity {
                                     EditText user = (EditText) findViewById(R.id.username);
                                     username = user.getText().toString();
                                     dB.connectToDB();
-                                    dB.updatePosition(AccountData.USERSTABLENAME, user.getText().toString(), latitude, longitude);
+                                    dB.updatePosition(AccountData.USERSTABLENAME, user.getText().toString(), latitude, longitude, latitude);
                                     dB.online(USERSTABLENAME, user.getText().toString());
                                 } catch (SQLException sql) {
                                     System.out.println("SQLException: " + sql.getMessage() + sql.getCause());
@@ -123,6 +123,7 @@ public class Connect extends ActionBarActivity {
 
              latitude = gps.getLatitude();
              longitude = gps.getLongitude();
+             latitude = gps.getLatitude();
 
             // \n is for new line
             Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();

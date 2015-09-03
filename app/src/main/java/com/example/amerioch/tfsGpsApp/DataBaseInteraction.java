@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by ramon on 8/07/15.
+ * Created by plnaspa on 8/07/15.
  */
 public class DataBaseInteraction {
 
@@ -57,21 +57,36 @@ public class DataBaseInteraction {
     }
 
     public ArrayList<String> getFriends(String table, String username){
-        ArrayList<String> friends = new ArrayList<String>();
+        ArrayList<String> friends = null;
         //It should return the friends username
         String insert = "SELECT friend FROM "+table+ " WHERE `username`='" + username + "'";
         try{
             res = cmd.executeQuery(insert);
+            friends = new ArrayList<String>();
             while(res.next()) {
                 friends.add(res.getString("friend"));
             }
-            Log.d("Ramon", "Friends: " +friends);
+            Log.d("Ramon", "Friends: " + friends);
         }
         catch(SQLException sql){
             Log.d("Ramon", "SQL error getting friends");
         }
 
         return friends;
+    }
+
+    public String getPassword(String table, String username){
+        String password = null;
+
+        String query = "SELECT `password` FROM " + table + " WHERE `username`='" + username + "'";
+
+        try{
+            res = cmd.executeQuery(query);
+            password = res.getString("password");
+
+        }
+        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + query);}
+        return password;
     }
 
     public boolean removeUser(String table, String username, String friend) {
@@ -95,11 +110,11 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public boolean insertNewUser(String table, String username, String password, boolean connected, double lat, double lon) throws SQLException{
+    public boolean insertNewUser(String table, String username, String password, boolean connected, double lat, double lon, double altitude) throws SQLException{
 
         String insert = "INSERT INTO " + table +"(`username`,";
-        insert += "`password`, `status`, `lat`, `lon`) VALUES";
-        insert += "('" + username + "','" + password + "','" + connected +  "'," + lat + "," + lon +")";
+        insert += "`password`, `status`, `lat`, `lon`, `altitude`) VALUES";
+        insert += "('" + username + "','" + password + "','" + connected +  "'," + lat + "," + lon + "," + altitude +")";
 
 
         try{cmd.executeUpdate(insert);}
@@ -107,10 +122,10 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public boolean updatePosition(String table, String username, double lat, double lon) {
+    public boolean updatePosition(String table, String username, double lat, double lon, double altitude) {
 
         String insert = "UPDATE " + table +" SET ";
-        insert += "`lat`=" + lat + ", `lon`=" + lon;
+        insert += "`lat`=" + lat + ", `lon`=" + lon + ", `altitude`=" + altitude;
         insert += "WHERE `username` = '" + username +"'";
 
         try{cmd.executeUpdate(insert);}
@@ -140,24 +155,25 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public boolean readPosition(String friend){
+    public double[] readPosition(String friend){
 
-        String insert = "SELECT lat, lon FROM users WHERE `username`='" + friend + "'";
+        String insert = "SELECT lat, lon, latitude FROM users WHERE `username`='" + friend + "'";
         String output="No funciona";
-        double lat;
-        double lon;
+        double [] out = null;
         try{
             res = cmd.executeQuery(insert);
-            if(res.next()) {
-                lat = res.getDouble("lat");
-                lon = res.getDouble("lon");
-                Log.d("Ramon", "Position: " + lat + " AND " + lon);
-            }
+            out = new double[3];
+            out[0] = res.getDouble("lat");
+            out[1] = res.getDouble("lon");
+            out[2] = res.getDouble("latitude");
+            Log.d("Ramon", "Position: " + out[0] + " AND " + out[1]);
+            
+            
         }
         catch(Exception e){
-            return false;
+            return out;
         }
-        return true;
+        return out;
     }
 
     public boolean connectionOK(){
