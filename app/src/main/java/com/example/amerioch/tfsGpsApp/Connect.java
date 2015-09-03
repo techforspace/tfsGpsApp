@@ -49,6 +49,8 @@ public class Connect extends ActionBarActivity {
     private final String  USERNAME = AccountData.USERNAME;
     private final String  USERSTABLENAME = AccountData.USERSTABLENAME;
     private final String  FRIENDSTABLENAME = AccountData.FRIENDSTABLENAME;
+    double latitude, longitude;
+    String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,27 +64,38 @@ public class Connect extends ActionBarActivity {
 
                     //Load the Password and Username fields from the GUI
                     EditText pass = (EditText) findViewById(R.id.password);
-                    EditText user = (EditText) findViewById(R.id.username);
 
                     //Enable connections (GPS and Internet)
                     connectionInternetGPSDialog();
+
                     /*Create new DB connexion from the user + pass, if the user is not register we won't be able to pass
                     *from this activity to the next one
                     */
-                    dB = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
-                    try {
-                        dB.connectToDB();
-                        dB.online(USERSTABLENAME,user.getText().toString());
+                        Thread thread = new Thread(new Runnable(){
+                            @Override
+                            public void run() {
+                                try {
+                                    dB = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
+
+                                    EditText user = (EditText) findViewById(R.id.username);
+                                    username = user.getText().toString();
+                                    dB.connectToDB();
+                                    dB.updatePosition(AccountData.USERSTABLENAME, user.getText().toString(), latitude, longitude);
+                                    dB.online(USERSTABLENAME, user.getText().toString());
+                                } catch (SQLException sql) {
+                                    System.out.println("SQLException: " + sql.getMessage() + sql.getCause());
+                                    System.out.println("SQLState: " + sql.getSQLState());
+                                    System.out.println("Error: " + sql.getErrorCode());
+                                    System.out.println("StackTrace: " + sql.getStackTrace());
+                                    Toast.makeText(getApplicationContext(), "ERROR while connecting, try again",
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                        thread.start();
                         Intent mainScreen = new Intent(Connect.this, MainScreen.class);
                         startActivity(mainScreen);
-                    }catch (SQLException sql){
-                        System.out.println("SQLException: " + sql.getMessage());
-                        System.out.println("SQLState: " + sql.getSQLState());
-                        System.out.println("Error: " + sql.getErrorCode());
-                        System.out.println("StackTrace: " + sql.getStackTrace());
-                        Toast.makeText(getApplicationContext(), "ERROR while connecting, try again",
-                                Toast.LENGTH_LONG).show();
-                    }
+
             }
         });
 
@@ -108,8 +121,8 @@ public class Connect extends ActionBarActivity {
         // Check if GPS enabled
         if(gps.canGetLocation()) {
 
-            double latitude = gps.getLatitude();
-            double longitude = gps.getLongitude();
+             latitude = gps.getLatitude();
+             longitude = gps.getLongitude();
 
             // \n is for new line
             Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
@@ -225,4 +238,23 @@ public class Connect extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onDestroy() {
+        Log.d("onDestroy", "begin");
+
+                                super.onDestroy();
+        Thread thread = new Thread(new Runnable(){
+            @Override
+            public void run() {
+
+                    dB = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
+                    dB.offline(AccountData.USERSTABLENAME, username);
+                Log.d("onDestroy", "thread");
+
+            }
+        });
+        thread.start();
+        Log.d("onDestroy", "end");
+
+    }
 }

@@ -31,6 +31,7 @@ public class DataBaseInteraction {
         this.username   = username;
 
         //Registrazione del Driver JDBC
+
         try{Class.forName ("com.mysql.jdbc.Driver").newInstance();}
         catch(Exception e){Log.d("non carica", "jdbc");}
     }
@@ -38,6 +39,7 @@ public class DataBaseInteraction {
 
     public void connectToDB() throws SQLException{
         conn = DriverManager.getConnection(url, username, pass);
+        Log.d("RAMON",conn+" ");
         if(conn!=null) {
             //Creation of a Statement object to be able to connect to the DB
             cmd = conn.createStatement();
@@ -96,8 +98,8 @@ public class DataBaseInteraction {
     public boolean insertNewUser(String table, String username, String password, boolean connected, double lat, double lon) throws SQLException{
 
         String insert = "INSERT INTO " + table +"(`username`,";
-        insert += "`password`, `status`, `lat`, `long`) VALUES";
-        insert += "('" + username + "','" + password + "'," + connected +  "'," + lat + "," + lon +")";
+        insert += "`password`, `status`, `lat`, `lon`) VALUES";
+        insert += "('" + username + "','" + password + "','" + connected +  "'," + lat + "," + lon +")";
 
 
         try{cmd.executeUpdate(insert);}
@@ -108,7 +110,7 @@ public class DataBaseInteraction {
     public boolean updatePosition(String table, String username, double lat, double lon) {
 
         String insert = "UPDATE " + table +" SET ";
-        insert += "`lat`=" + lat + ", `long`=" + lon;
+        insert += "`lat`=" + lat + ", `lon`=" + lon;
         insert += "WHERE `username` = '" + username +"'";
 
         try{cmd.executeUpdate(insert);}
@@ -140,7 +142,7 @@ public class DataBaseInteraction {
 
     public boolean readPosition(String friend){
 
-        String insert = "SELECT lat, long FROM users WHERE `username`='" + friend + "'";
+        String insert = "SELECT lat, lon FROM users WHERE `username`='" + friend + "'";
         String output="No funciona";
         double lat;
         double lon;
@@ -148,7 +150,7 @@ public class DataBaseInteraction {
             res = cmd.executeQuery(insert);
             if(res.next()) {
                 lat = res.getDouble("lat");
-                lon = res.getDouble("long");
+                lon = res.getDouble("lon");
                 Log.d("Ramon", "Position: " + lat + " AND " + lon);
             }
         }
