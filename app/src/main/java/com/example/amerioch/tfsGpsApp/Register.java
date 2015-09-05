@@ -43,20 +43,37 @@ public class Register extends Activity{
                                 DataBaseInteraction dBInteraction = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
                                 dBInteraction.connectToDB();
                                 try {
-                                    dBInteraction.insertNewUser(AccountData.USERSTABLENAME, user.getText().toString(), pass.getText().toString(), false, 0.0, 0.0, 0.0);
-                                    Toast.makeText(getApplicationContext(), "Congratulations you have been correctly registered!",
-                                            Toast.LENGTH_LONG).show();
+                                    if(dBInteraction.insertNewUser(AccountData.USERSTABLENAME, user.getText().toString(), pass.getText().toString(), false, 0.0, 0.0, 0.0)) {
+                                        runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                Toast.makeText(getApplicationContext(), "Congratulations you have been correctly registered!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }else{
+                                        runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                Toast.makeText(getApplicationContext(), "ERROR: Username already exists, try another", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                    finish();
                                 } catch (SQLException sql) {
-                                    Toast.makeText(getApplicationContext(), "ERROR: Cannot connect to the database",
-                                            Toast.LENGTH_LONG).show();
+                                    runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(), "ERROR: Cannot connect!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                                 }
                                 finish();
                             } else {
                                 pass.setText("");
                                 passConfirmation.setText("");
                                 user.setText("");
-                                Toast.makeText(getApplicationContext(), "ERROR: Passwords don't match",
-                                        Toast.LENGTH_LONG).show();
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "ERROR: Passwords don't match", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
                         } catch (SQLException sql) {
                             Log.d("PIPPO", "fsdfsdf" + sql.getMessage());

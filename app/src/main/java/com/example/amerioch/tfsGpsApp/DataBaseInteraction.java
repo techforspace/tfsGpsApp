@@ -78,7 +78,8 @@ public class DataBaseInteraction {
     public String getPassword(String table, String username){
         String password = null;
 
-        String query = "SELECT `password` FROM " + table + " WHERE `username`='" + username + "'";
+        String query = "SELECT `password` FROM " + AccountData.USERSTABLENAME + " WHERE `username`='" + username + "'";
+        query = "SELECT `password` FROM Users WHERE `username`='a'";
 
         try{
             res = cmd.executeQuery(query);

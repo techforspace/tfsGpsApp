@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,6 +33,7 @@ import java.util.Enumeration;
 import java.util.Set;
 
 
+
 public class Connect extends ActionBarActivity {
 
     private final static int REQUEST_ENABLE_BT = 1;
@@ -50,7 +53,7 @@ public class Connect extends ActionBarActivity {
     private final String  USERSTABLENAME = AccountData.USERSTABLENAME;
     private final String  FRIENDSTABLENAME = AccountData.FRIENDSTABLENAME;
     double latitude, longitude, altitude;
-    String username;
+    String username,password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,22 +82,35 @@ public class Connect extends ActionBarActivity {
 
                                     EditText user = (EditText) findViewById(R.id.username);
                                     username = user.getText().toString();
+                                    EditText pass = (EditText) findViewById(R.id.password);
+                                    password = pass.getText().toString();
                                     dB.connectToDB();
-                                    dB.updatePosition(AccountData.USERSTABLENAME, user.getText().toString(), latitude, longitude, latitude);
-                                    dB.online(USERSTABLENAME, user.getText().toString());
+                                    if(verifUser(username,password)) {
+                                        dB.updatePosition(AccountData.USERSTABLENAME, user.getText().toString(), latitude, longitude, latitude);
+                                        dB.online(USERSTABLENAME, user.getText().toString());
+                                        Intent mainScreen = new Intent(Connect.this, MainScreen.class);
+                                        startActivity(mainScreen);
+                                    }else{
+                                        runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                Toast.makeText(getApplicationContext(), "Username or Password not correct", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
                                 } catch (SQLException sql) {
                                     System.out.println("SQLException: " + sql.getMessage() + sql.getCause());
                                     System.out.println("SQLState: " + sql.getSQLState());
                                     System.out.println("Error: " + sql.getErrorCode());
                                     System.out.println("StackTrace: " + sql.getStackTrace());
-                                    Toast.makeText(getApplicationContext(), "ERROR while connecting, try again",
-                                            Toast.LENGTH_LONG).show();
+                                    runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(), "ERROR while connecting, try again", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                                 }
                             }
                         });
                         thread.start();
-                        Intent mainScreen = new Intent(Connect.this, MainScreen.class);
-                        startActivity(mainScreen);
 
             }
         });
@@ -109,6 +125,15 @@ public class Connect extends ActionBarActivity {
         });
 
 
+    }
+
+    private boolean verifUser(String username, String password){
+        String hola = dB.getPassword(this.USERSTABLENAME,username);
+        if(dB.getPassword(this.USERSTABLENAME,username)==password){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     private void connectionInternetGPSDialog(){
@@ -239,7 +264,7 @@ public class Connect extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
+    /*@Override
     public void onDestroy() {
         Log.d("onDestroy", "begin");
 
@@ -257,5 +282,5 @@ public class Connect extends ActionBarActivity {
         thread.start();
         Log.d("onDestroy", "end");
 
-    }
+    }*/
 }
