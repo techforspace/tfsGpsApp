@@ -46,9 +46,9 @@ public class DataBaseInteraction {
         }
     }
 
-    public boolean removeFriend(String table, String username, String friend) {
+    public boolean removeFriend(String username, String friend) {
 
-        String insert = "DELETE FROM " + table +" WHERE ";
+        String insert = "DELETE FROM " +  AccountData.FRIENDSTABLENAME + " WHERE ";
         insert += "`username`='" + username +"' AND `friend`='" + friend + "'";
 
         try{cmd.executeUpdate(insert);}
@@ -56,10 +56,10 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public ArrayList<String> getFriends(String table, String username){
+    public ArrayList<String> getFriends(String username){
         ArrayList<String> friends = null;
         //It should return the friends username
-        String insert = "SELECT friend FROM "+table+ " WHERE `username`='" + username + "'";
+        String insert = "SELECT friend FROM "+AccountData.FRIENDSTABLENAME+ " WHERE `username`='" + username + "'";
         try{
             res = cmd.executeQuery(insert);
             friends = new ArrayList<String>();
@@ -75,14 +75,14 @@ public class DataBaseInteraction {
         return friends;
     }
 
-    public String getPassword(String table, String username){
+    public String getPassword(String username){
         String password = null;
 
         String query = "SELECT `password` FROM " + AccountData.USERSTABLENAME + " WHERE `username`='" + username + "'";
-        query = "SELECT `password` FROM Users WHERE `username`='a'";
 
         try{
             res = cmd.executeQuery(query);
+            res.next();
             password = res.getString("password");
 
         }
@@ -90,9 +90,15 @@ public class DataBaseInteraction {
         return password;
     }
 
-    public boolean removeUser(String table, String username, String friend) {
+    public boolean removeUser(String username) {
 
-        String insert = "DELETE FROM " + table +" WHERE ";
+        String insert = "DELETE FROM " + AccountData.FRIENDSTABLENAME +" WHERE ";
+        insert += "`username`='" + username +"' or `friend` ='"+ username +"'";
+
+        try{cmd.executeUpdate(insert);}
+        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+
+        insert = "DELETE FROM " + AccountData.USERSTABLENAME +" WHERE ";
         insert += "`username`='" + username +"'";
 
         try{cmd.executeUpdate(insert);}
@@ -100,9 +106,9 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public boolean addFriend(String table, String username, String friend) {
+    public boolean addFriend(String username, String friend) {
 
-        String insert = "INSERT INTO " + table +"(`username`,";
+        String insert = "INSERT INTO " + AccountData.FRIENDSTABLENAME +"(`username`,";
         insert += "`friend`) VALUES";
         insert += "('" + username + "','" + friend + "')";
 
@@ -111,11 +117,11 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public boolean insertNewUser(String table, String username, String password, boolean connected, double lat, double lon, double altitude) throws SQLException{
+    public boolean insertNewUser(String username, String password, double lat, double lon, double altitude) throws SQLException{
 
-        String insert = "INSERT INTO " + table +"(`username`,";
+        String insert = "INSERT INTO " + AccountData.USERSTABLENAME +"(`username`,";
         insert += "`password`, `status`, `lat`, `lon`, `altitude`) VALUES";
-        insert += "('" + username + "','" + password + "','" + connected +  "'," + lat + "," + lon + "," + altitude +")";
+        insert += "('" + username + "','" + password + "','Never Connected'," + lat + "," + lon + "," + altitude +")";
 
 
         try{cmd.executeUpdate(insert);}
@@ -123,9 +129,9 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public boolean updatePosition(String table, String username, double lat, double lon, double altitude) {
+    public boolean updatePosition(String username, double lat, double lon, double altitude) {
 
-        String insert = "UPDATE " + table +" SET ";
+        String insert = "UPDATE " + AccountData.USERSTABLENAME +" SET ";
         insert += "`lat`=" + lat + ", `lon`=" + lon + ", `altitude`=" + altitude;
         insert += "WHERE `username` = '" + username +"'";
 
@@ -134,9 +140,9 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public boolean online(String table, String username) {
+    public boolean online(String username) {
 
-        String insert = "UPDATE " + table +" SET ";
+        String insert = "UPDATE " + AccountData.USERSTABLENAME +" SET ";
         insert += "`status`= 'online'";
         insert += "WHERE `username` = '" + username +"'";
 
@@ -145,9 +151,9 @@ public class DataBaseInteraction {
         return true;
     }
 
-    public boolean offline(String table, String username) {
+    public boolean offline(String username) {
 
-        String insert = "UPDATE " + table +" SET ";
+        String insert = "UPDATE " + AccountData.USERSTABLENAME +" SET ";
         insert += "`status`= 'offline'";
         insert += "WHERE `username` = '" + username +"'";
 
@@ -158,11 +164,12 @@ public class DataBaseInteraction {
 
     public double[] readPosition(String friend){
 
-        String insert = "SELECT lat, lon, latitude FROM users WHERE `username`='" + friend + "'";
+        String insert = "SELECT lat, lon, altitude FROM " + AccountData.USERSTABLENAME + " WHERE `username`='" + friend + "'";
         String output="No funciona";
         double [] out = null;
         try{
             res = cmd.executeQuery(insert);
+            res.next();
             out = new double[3];
             out[0] = res.getDouble("lat");
             out[1] = res.getDouble("lon");
@@ -172,9 +179,30 @@ public class DataBaseInteraction {
             
         }
         catch(Exception e){
+            Log.d("Error", e.getMessage());
             return out;
         }
         return out;
+    }
+
+    public boolean userExists(String user){
+
+        String insert = "SELECT username FROM " + AccountData.USERSTABLENAME + " WHERE username='" + user + "'";
+        try{
+            res = cmd.executeQuery(insert);
+            res.next();
+            String userDB = res.getString("username");
+            if (user.equals(userDB)){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        catch(Exception e){
+            Log.d("Error", e.getMessage());
+            return false;
+        }
     }
 
     public boolean connectionOK(){

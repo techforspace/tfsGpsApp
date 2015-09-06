@@ -41,7 +41,7 @@ public class MainScreen extends Activity{
         setContentView(R.layout.main_screen);
         TableLayout rl = (TableLayout) findViewById(R.id.friendTable);
         //modify this to read each friend and calculate GPS distance
-        ArrayList<String> friends = Connect.dB.getFriends(AccountData.USERSTABLENAME,Connect.username);
+        ArrayList<String> friends = Connect.dB.getFriends(Connect.username);
         Location myLocation = new Location("");
         //Get position first element latitude, second longitude, third altitude.
         double[] position = Connect.dB.readPosition(Connect.username);
@@ -88,7 +88,7 @@ public class MainScreen extends Activity{
                     public void onClick(DialogInterface dialog, int whichButton) {
                         //Introduce in the friend list (prevent the other user)
                         if(Connect.dB.userExists(addUsername.getText().toString())) {
-                            Connect.dB.addFriend(AccountData.FRIENDSTABLENAME, Connect.username, addUsername.getText().toString());
+                            Connect.dB.addFriend(Connect.username, addUsername.getText().toString());
                         }else{
                             runOnUiThread(new Runnable() {
                                 public void run() {
@@ -114,7 +114,7 @@ public class MainScreen extends Activity{
             @Override
             public void onClick(View v) {
                 //Change DB isConnected
-                Connect.dB.offline(AccountData.USERSTABLENAME,Connect.username);
+                Connect.dB.offline(Connect.username);
                 finish();
             }
         });

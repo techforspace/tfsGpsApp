@@ -87,8 +87,8 @@ public class Connect extends ActionBarActivity {
                                     password = pass.getText().toString();
                                     dB.connectToDB();
                                     if(verifUser(username,password)) {
-                                        dB.updatePosition(AccountData.USERSTABLENAME, user.getText().toString(), latitude, longitude, latitude);
-                                        dB.online(USERSTABLENAME, user.getText().toString());
+                                        dB.updatePosition(user.getText().toString(), latitude, longitude, latitude);
+                                        dB.online(user.getText().toString());
                                         Intent mainScreen = new Intent(Connect.this, MainScreen.class);
                                         startActivity(mainScreen);
                                     }else{
@@ -129,8 +129,8 @@ public class Connect extends ActionBarActivity {
     }
 
     private boolean verifUser(String username, String password){
-        String hola = dB.getPassword(this.USERSTABLENAME,username);
-        if(dB.getPassword(this.USERSTABLENAME,username)==password){
+        String hola = dB.getPassword(username);
+        if(dB.getPassword(username)==password){
             return true;
         }else{
             return false;
