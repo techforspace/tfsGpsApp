@@ -6,3 +6,6 @@
 /build
 /captures
 app/src/main/java/com/example/amerioch/tfsGpsApp/AccountData.java
+.idea/gradle.xml
+app/build.gradle
+
