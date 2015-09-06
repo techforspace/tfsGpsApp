@@ -53,7 +53,8 @@ public class Connect extends ActionBarActivity {
     private final String  USERSTABLENAME = AccountData.USERSTABLENAME;
     private final String  FRIENDSTABLENAME = AccountData.FRIENDSTABLENAME;
     double latitude, longitude, altitude;
-    String username,password;
+    private String password;
+    public static String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

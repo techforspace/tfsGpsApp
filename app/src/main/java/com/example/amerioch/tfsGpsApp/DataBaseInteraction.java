@@ -166,7 +166,7 @@ public class DataBaseInteraction {
             out = new double[3];
             out[0] = res.getDouble("lat");
             out[1] = res.getDouble("lon");
-            out[2] = res.getDouble("latitude");
+            out[2] = res.getDouble("altitude");
             Log.d("Ramon", "Position: " + out[0] + " AND " + out[1]);
             
             

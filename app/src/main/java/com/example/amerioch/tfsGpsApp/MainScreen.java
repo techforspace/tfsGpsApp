@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
@@ -21,6 +22,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,12 +41,35 @@ public class MainScreen extends Activity{
         setContentView(R.layout.main_screen);
         TableLayout rl = (TableLayout) findViewById(R.id.friendTable);
         //modify this to read each friend and calculate GPS distance
-        /*
-        **
-         */
-        rl.addView(createRow("Giacomo", "5km"));
+        ArrayList<String> friends = Connect.dB.getFriends(AccountData.USERSTABLENAME,Connect.username);
+        Location myLocation = new Location("");
+        //Get position first element latitude, second longitude, third altitude.
+        double[] position = Connect.dB.readPosition(Connect.username);
+        myLocation.setLatitude(position[0]);
+        myLocation.setLongitude(position[1]);
+        GpsClass gps = new GpsClass(getApplicationContext());
+        if(friends.size()>0) {
+            for (String friend : friends) {
+                Location friendLocation = new Location("");
+                position = Connect.dB.readPosition(friend);
+                friendLocation.setLatitude(position[0]);
+                friendLocation.setLongitude(position[1]);
+                Double distance = gps.calculateDistance(myLocation, friendLocation);
+                String distanceStr;
+                if (distance >= 1000.0) {
+                    distance = distance / 1000.0;
+                    distanceStr = distance.toString() + "km";
+                } else {
+                    distanceStr = distance.toString() + "m";
+                }
+                rl.addView(createRow(friend, distanceStr));
+            }
+        }else{
+            rl.addView(createRow("No","Friends"));
+        }
+        /*rl.addView(createRow("Giacomo", "5km"));
         rl.addView(createRow("Pablo", "100m"));
-        rl.addView(createRow("Ramon", "2km"));
+        rl.addView(createRow("Ramon", "2km"));*/
         this.addFriendsButton = (Button) findViewById(R.id.addFriends);
         this.addFriendsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,6 +87,15 @@ public class MainScreen extends Activity{
                     @Override
                     public void onClick(DialogInterface dialog, int whichButton) {
                         //Introduce in the friend list (prevent the other user)
+                        if(Connect.dB.userExists(addUsername.getText().toString())) {
+                            Connect.dB.addFriend(AccountData.FRIENDSTABLENAME, Connect.username, addUsername.getText().toString());
+                        }else{
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "Error: Friend name doesn't exist", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -80,6 +114,7 @@ public class MainScreen extends Activity{
             @Override
             public void onClick(View v) {
                 //Change DB isConnected
+                Connect.dB.offline(AccountData.USERSTABLENAME,Connect.username);
                 finish();
             }
         });
