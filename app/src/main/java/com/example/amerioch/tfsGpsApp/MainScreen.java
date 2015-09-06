@@ -42,19 +42,16 @@ public class MainScreen extends Activity{
         TableLayout rl = (TableLayout) findViewById(R.id.friendTable);
         //modify this to read each friend and calculate GPS distance
         ArrayList<String> friends = Connect.dB.getFriends(Connect.username);
-        Location myLocation = new Location("");
-        //Get position first element latitude, second longitude, third altitude.
-        double[] position = Connect.dB.readPosition(Connect.username);
-        myLocation.setLatitude(position[0]);
-        myLocation.setLongitude(position[1]);
         GpsClass gps = new GpsClass(getApplicationContext());
-        if(friends.size()>0) {
+        Connect.dB.updatePosition(Connect.username,gps.getLatitude(),gps.getLongitude(),gps.getAltitude());
+        if(friends!=null) {
             for (String friend : friends) {
                 Location friendLocation = new Location("");
-                position = Connect.dB.readPosition(friend);
+                //Get position first element latitude, second longitude, third altitude.
+                double[] position = Connect.dB.readPosition(friend);
                 friendLocation.setLatitude(position[0]);
                 friendLocation.setLongitude(position[1]);
-                Double distance = gps.calculateDistance(myLocation, friendLocation);
+                Double distance = gps.calculateDistance(gps.getLocation(), friendLocation);
                 String distanceStr;
                 if (distance >= 1000.0) {
                     distance = distance / 1000.0;
@@ -114,8 +111,9 @@ public class MainScreen extends Activity{
             @Override
             public void onClick(View v) {
                 //Change DB isConnected
-                Connect.dB.offline(Connect.username);
-                finish();
+                if(Connect.dB.offline(Connect.username)) {
+                    finish();
+                }
             }
         });
     }

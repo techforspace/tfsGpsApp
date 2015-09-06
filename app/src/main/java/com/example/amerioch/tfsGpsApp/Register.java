@@ -43,20 +43,20 @@ public class Register extends Activity{
                                 DataBaseInteraction dBInteraction = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
                                 dBInteraction.connectToDB();
                                 try {
-                                    if(dBInteraction.insertNewUser(user.getText().toString(), pass.getText().toString(), 0.0, 0.0, 0.0)) {
+                                    if (dBInteraction.insertNewUser(user.getText().toString(), pass.getText().toString(), 0.0, 0.0, 0.0)) {
                                         runOnUiThread(new Runnable() {
                                             public void run() {
                                                 Toast.makeText(getApplicationContext(), "Congratulations you have been correctly registered!", Toast.LENGTH_SHORT).show();
                                             }
                                         });
-                                    }else{
+                                        finish();
+                                    } else {
                                         runOnUiThread(new Runnable() {
                                             public void run() {
                                                 Toast.makeText(getApplicationContext(), "ERROR: Username already exists, try another", Toast.LENGTH_SHORT).show();
                                             }
                                         });
                                     }
-                                    finish();
                                 } catch (SQLException sql) {
                                     runOnUiThread(new Runnable() {
                                         public void run() {
@@ -64,25 +64,29 @@ public class Register extends Activity{
                                         }
                                     });
                                 }
-                                finish();
+
                             } else {
-                                pass.setText("");
-                                passConfirmation.setText("");
-                                user.setText("");
                                 runOnUiThread(new Runnable() {
                                     public void run() {
                                         Toast.makeText(getApplicationContext(), "ERROR: Passwords don't match", Toast.LENGTH_SHORT).show();
+                                        pass.setText("");
+                                        passConfirmation.setText("");
+                                        user.setText("");
                                     }
                                 });
+
                             }
                         } catch (SQLException sql) {
-                            Log.d("PIPPO", "fsdfsdf" + sql.getMessage());
                             System.out.println("SQLException: " + sql.getMessage());
                             System.out.println("SQLState: " + sql.getSQLState());
                             System.out.println("Error: " + sql.getErrorCode());
                             System.out.println("StackTrace: " + sql.getStackTrace());
-                    //        Toast.makeText(getApplicationContext(), "We're sorry we detected an ERROR while connecting",
-                               //     Toast.LENGTH_LONG).show();
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "We're sorry we detected an ERROR while connecting", Toast.LENGTH_LONG).show();
+                                }
+                            });
+
                         }
                     }
                 });

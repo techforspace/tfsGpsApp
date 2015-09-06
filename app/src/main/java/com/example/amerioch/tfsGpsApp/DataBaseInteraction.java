@@ -76,7 +76,7 @@ public class DataBaseInteraction {
     }
 
     public String getPassword(String username){
-        String password = null;
+        String password = "";
 
         String query = "SELECT `password` FROM " + AccountData.USERSTABLENAME + " WHERE `username`='" + username + "'";
 
@@ -85,8 +85,9 @@ public class DataBaseInteraction {
             res.next();
             password = res.getString("password");
 
+        }catch(Exception e){
+            Log.d("non scrive nada", e.getMessage() + e.getCause() + query);
         }
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + query);}
         return password;
     }
 

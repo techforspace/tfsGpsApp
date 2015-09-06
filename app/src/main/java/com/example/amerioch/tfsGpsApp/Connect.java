@@ -86,7 +86,7 @@ public class Connect extends ActionBarActivity {
                                     EditText pass = (EditText) findViewById(R.id.password);
                                     password = pass.getText().toString();
                                     dB.connectToDB();
-                                    if(verifUser(username,password)) {
+                                    if(verifUser(username,password) && !username.equals("") && !password.equals("")) {
                                         dB.updatePosition(user.getText().toString(), latitude, longitude, latitude);
                                         dB.online(user.getText().toString());
                                         Intent mainScreen = new Intent(Connect.this, MainScreen.class);
@@ -129,8 +129,7 @@ public class Connect extends ActionBarActivity {
     }
 
     private boolean verifUser(String username, String password){
-        String hola = dB.getPassword(username);
-        if(dB.getPassword(username)==password){
+        if(dB.getPassword(username).equals(password)){
             return true;
         }else{
             return false;
@@ -151,8 +150,6 @@ public class Connect extends ActionBarActivity {
              longitude = gps.getLongitude();
              latitude = gps.getLatitude();
 
-            // \n is for new line
-            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
         } else {gps.showSettingsAlert();}
 
         //For 3G check
