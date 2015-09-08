@@ -1,6 +1,7 @@
 package com.example.amerioch.tfsGpsApp;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,15 +58,29 @@ public class Connect extends ActionBarActivity {
     private String password;
     public static String username;
 
+    //Progress Dialog
+    ContextThemeWrapper ctw;
+    ProgressDialog pd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Loading bar style
+        ctw = new ContextThemeWrapper(this, R.style.Theme_AppCompat_Light_Dialog);
+
         //We create the graphic interface as said in the project
         this.buttonSendLogin = (Button) findViewById(R.id.buttonAccept);
         this.buttonSendLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //Loading bar
+                pd = new ProgressDialog(ctw);
+                pd.setMessage("Loading");
+                pd.show();
+                pd.setCanceledOnTouchOutside(false);
 
                     //Load the Password and Username fields from the GUI
                     EditText pass = (EditText) findViewById(R.id.password);
@@ -90,11 +106,13 @@ public class Connect extends ActionBarActivity {
                                         dB.updatePosition(user.getText().toString(), latitude, longitude, latitude);
                                         dB.online(user.getText().toString());
                                         Intent mainScreen = new Intent(Connect.this, MainScreen.class);
+                                        pd.dismiss();
                                         startActivity(mainScreen);
                                     }else{
                                         runOnUiThread(new Runnable() {
                                             public void run() {
                                                 Toast.makeText(getApplicationContext(), "Username or Password not correct", Toast.LENGTH_SHORT).show();
+                                                pd.dismiss();
                                             }
                                         });
                                     }
@@ -106,6 +124,7 @@ public class Connect extends ActionBarActivity {
                                     runOnUiThread(new Runnable() {
                                         public void run() {
                                             Toast.makeText(getApplicationContext(), "ERROR while connecting, try again", Toast.LENGTH_SHORT).show();
+                                            pd.dismiss();
                                         }
                                     });
                                 }
