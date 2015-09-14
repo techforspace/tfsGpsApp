@@ -107,7 +107,11 @@ public class GpsClass extends Service implements LocationListener {
 
 
     public double calculateDistance(Location locationA, Location locationB){
-        return locationA.distanceTo(locationB);
+        if(locationB!=null && locationA!=null) {
+            return locationA.distanceTo(locationB);
+        }else{
+            return 99999.0;
+        }
     }
 
     /**
