@@ -31,6 +31,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -186,124 +188,76 @@ public class MainScreen extends Activity{
         });
     }
 
-    private void updateView() {
-        int count = rl.getChildCount();
-        for (int i = 1; i < count; i++) {
-            View child = rl.getChildAt(i);
-            if (child instanceof TableRow) ((ViewGroup) child).removeAllViews();
-        }
-        addFriends();
-    }
-
-    private void addFriends(){
-        ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
-
-        // This schedule a runnable task every 10 sec
-        scheduleTaskExecutor.schedule(new Runnable() {
+    private void deleteRows(){
+        runOnUiThread(new Runnable() {
             public void run() {
-                try {
-                    DataBaseInteraction dBInteraction = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
-                    dBInteraction.connectToDB();
-                    rl = (TableLayout) findViewById(R.id.friendTable);
-                    //modify this to read each friend and calculate GPS distance
-                    ArrayList<String> friends = dBInteraction.getFriends(Connect.username);
-                    //Stay inside the loop
-                    boolean loop = true;
-                    while (loop) {
-                        dBInteraction.updatePosition(Connect.username, gps.getLatitude(), gps.getLongitude(), gps.getAltitude());
-                        if (friends.size() > 0) {
-                            for (String friend : friends) {
-                                Location friendLocation = new Location("");
-                                //Get position first element latitude, second longitude, third altitude.
-                                double[] position = dBInteraction.readPosition(friend);
-                                friendLocation.setLatitude(position[0]);
-                                friendLocation.setLongitude(position[1]);
-                                Double distance = gps.calculateDistance(gps.getLocation(), friendLocation);
-                                String distanceStr;
-                                if (distance >= 1000.0) {
-                                    distance = distance / 1000.0;
-                                    distance = round(distance, 2);
-                                    distanceStr = distance.toString() + "km";
-                                } else {
-                                    distance = round(distance, 2);
-                                    distanceStr = distance.toString() + "m";
-                                }
-                                writeRow(friend, distanceStr);
-                            }
-
-                        } else {
-                            writeRow("No", "Friends");
-                            loop = false;
-                        }
-                    }
-                } catch (SQLException sql) {
-                    System.out.println("SQLException: " + sql.getMessage());
-                    System.out.println("SQLState: " + sql.getSQLState());
-                    System.out.println("Error: " + sql.getErrorCode());
-                    System.out.println("StackTrace: " + sql.getStackTrace());
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "We're sorry we detected an ERROR while connecting", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                }
-            }
-        }, 10, TimeUnit.SECONDS);
-        /*Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    DataBaseInteraction dBInteraction = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
-                    dBInteraction.connectToDB();
-                    rl = (TableLayout) findViewById(R.id.friendTable);
-
-                    //modify this to read each friend and calculate GPS distance
-                    ArrayList<String> friends = dBInteraction.getFriends(Connect.username);
-                    //Stay inside the loop
-                    boolean loop = true;
-                    while(loop){
-                        dBInteraction.updatePosition(Connect.username, gps.getLatitude(), gps.getLongitude(), gps.getAltitude());
-                        if (friends.size() > 0) {
-                            for (String friend : friends) {
-                                Location friendLocation = new Location("");
-                                //Get position first element latitude, second longitude, third altitude.
-                                double[] position = dBInteraction.readPosition(friend);
-                                friendLocation.setLatitude(position[0]);
-                                friendLocation.setLongitude(position[1]);
-                                Double distance = gps.calculateDistance(gps.getLocation(), friendLocation);
-                                String distanceStr;
-                                if (distance >= 1000.0) {
-                                    distance = distance / 1000.0;
-                                    distance = round(distance, 2);
-                                    distanceStr = distance.toString() + "km";
-                                } else {
-                                    distance = round(distance, 2);
-                                    distanceStr = distance.toString() + "m";
-                                }
-                                writeRow(friend, distanceStr);
-                            }
-
-                        } else {
-                            writeRow("No", "Friends");
-                            loop=false;
-                        }
-                    }
-                } catch (SQLException sql) {
-                    System.out.println("SQLException: " + sql.getMessage());
-                    System.out.println("SQLState: " + sql.getSQLState());
-                    System.out.println("Error: " + sql.getErrorCode());
-                    System.out.println("StackTrace: " + sql.getStackTrace());
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "We're sorry we detected an ERROR while connecting", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
+                int count = rl.getChildCount();
+                for (int i = 1; i < count; i++) {
+                    View child = rl.getChildAt(i);
+                    if (child instanceof TableRow) ((ViewGroup) child).removeAllViews();
                 }
             }
         });
-        thread.start();*/
+
+    }
+    private void updateView() {
+        deleteRows();
+        addFriends();
+    }
+
+    private void addFriends() {
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                try {
+                    DataBaseInteraction dBInteraction = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
+                    dBInteraction.connectToDB();
+                    rl = (TableLayout) findViewById(R.id.friendTable);
+                    //modify this to read each friend and calculate GPS distance
+                    ArrayList<String> friends = dBInteraction.getFriends(Connect.username);
+                    //Stay inside the loop
+                    dBInteraction.updatePosition(Connect.username, gps.getLatitude(), gps.getLongitude(), gps.getAltitude());
+                    Log.d("tag", "Giacomo funciona");
+                    if (friends.size() > 0) {
+                        deleteRows();
+                        for (String friend : friends) {
+                            Location friendLocation = new Location("");
+                            //Get position first element latitude, second longitude, third altitude.
+                            double[] position = dBInteraction.readPosition(friend);
+                            friendLocation.setLatitude(position[0]);
+                            friendLocation.setLongitude(position[1]);
+                            Double distance = gps.calculateDistance(gps.getLocation(), friendLocation);
+                            String distanceStr;
+                            if (distance >= 1000.0) {
+                                distance = distance / 1000.0;
+                                distance = round(distance, 2);
+                                distanceStr = distance.toString() + "km";
+                            } else {
+                                distance = round(distance, 2);
+                                distanceStr = distance.toString() + "m";
+                            }
+                            writeRow(friend, distanceStr);
+                        }
+
+                    } else {
+                        writeRow("No", "Friends");
+
+                    }
+                } catch (SQLException sql) {
+                    System.out.println("SQLException: " + sql.getMessage());
+                    System.out.println("SQLState: " + sql.getSQLState());
+                    System.out.println("Error: " + sql.getErrorCode());
+                    System.out.println("StackTrace: " + sql.getStackTrace());
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "We're sorry we detected an ERROR while connecting", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                }
+            }
+        }, 0, 10000);
     }
 
     public static double round(double value, int places) {
