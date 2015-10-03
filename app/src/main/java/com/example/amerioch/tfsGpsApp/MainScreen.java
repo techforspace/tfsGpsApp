@@ -1,41 +1,33 @@
 package com.example.amerioch.tfsGpsApp;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.InputType;
-import android.text.Layout;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
-import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import android.support.v4.app.FragmentActivity;
+import com.google.android.gms.maps.*;
+
 
 /**
  * Created by ramon on 26/07/15.
@@ -45,6 +37,7 @@ public class MainScreen extends Activity{
     private Button addFriendsButton;
     private Button buttonLogOut;
     private GpsClass gps;
+    private boolean firstTime = true;
     TableLayout rl;
 
     //Progress Dialog
@@ -57,7 +50,6 @@ public class MainScreen extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen);
         gps = new GpsClass(getApplicationContext());
-
         //Loading bar style
         ctw = new ContextThemeWrapper(this, R.style.Theme_AppCompat_Light_Dialog);
 
@@ -101,7 +93,7 @@ public class MainScreen extends Activity{
                                             public void run() {
 
                                                 updateView();
-
+                                                firstTime=true;
                                                 Toast.makeText(getApplicationContext(), "Friend inserted correctly", Toast.LENGTH_SHORT).show();
 
                                                  pd.dismiss();
@@ -188,7 +180,7 @@ public class MainScreen extends Activity{
         });
     }
 
-    private void deleteRows(){
+    private void deleteRows() {
         runOnUiThread(new Runnable() {
             public void run() {
                 int count = rl.getChildCount();
@@ -200,6 +192,8 @@ public class MainScreen extends Activity{
         });
 
     }
+
+
     private void updateView() {
         deleteRows();
         addFriends();
@@ -218,9 +212,7 @@ public class MainScreen extends Activity{
                     ArrayList<String> friends = dBInteraction.getFriends(Connect.username);
                     //Stay inside the loop
                     dBInteraction.updatePosition(Connect.username, gps.getLatitude(), gps.getLongitude(), gps.getAltitude());
-                    Log.d("tag", "Giacomo funciona");
                     if (friends.size() > 0) {
-                        deleteRows();
                         for (String friend : friends) {
                             Location friendLocation = new Location("");
                             //Get position first element latitude, second longitude, third altitude.
@@ -237,9 +229,13 @@ public class MainScreen extends Activity{
                                 distance = round(distance, 2);
                                 distanceStr = distance.toString() + "m";
                             }
-                            writeRow(friend, distanceStr);
+                            if(firstTime){
+                                writeRow(friend, distanceStr);
+                            }else {
+                                modifyRowDistance(friend,distanceStr);
+                            }
                         }
-
+                        firstTime=false;
                     } else {
                         writeRow("No", "Friends");
 
@@ -293,6 +289,23 @@ public class MainScreen extends Activity{
         return row;
     }
 
+    private void modifyRowDistance(final String friend, final String newDistance){
+        runOnUiThread(new Runnable() {
+            public void run() {
+                int i=0;
+                while(i < rl.getChildCount()) {
+                    TableRow v = (TableRow) rl.getChildAt(i);
+                    if(friend.equals(v.getChildAt(0).toString())){
+                        rl.removeView(v);
+                        TableRow newRow = createRow(friend,newDistance);
+                        rl.addView(newRow);
+                        i=rl.getChildCount();
+                    }
+                }
+            }
+        });
+    }
+
     public void writeRow(final String firstCol,final String secCol) {
         runOnUiThread(new Runnable() {
             public void run() {
@@ -300,5 +313,4 @@ public class MainScreen extends Activity{
             }
         });
     }
-
 }
