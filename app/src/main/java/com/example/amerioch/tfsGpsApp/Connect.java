@@ -25,11 +25,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Set;
@@ -148,7 +151,8 @@ public class Connect extends ActionBarActivity {
     }
 
     private boolean verifUser(String username, String password){
-        if(dB.getPassword(username).equals(password)){
+
+        if(dB.verifyPassword(password, username).equals(username)){
             return true;
         }else{
             return false;

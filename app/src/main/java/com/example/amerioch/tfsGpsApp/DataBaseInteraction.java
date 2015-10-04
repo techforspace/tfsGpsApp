@@ -3,6 +3,8 @@ package com.example.amerioch.tfsGpsApp;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -10,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.security.MessageDigest;
 
 /**
  * Created by plnaspa on 8/07/15.
@@ -75,15 +78,27 @@ public class DataBaseInteraction {
         return friends;
     }
 
-    public String getPassword(String username){
-        String password = "";
+    public String verifyPassword(String password, String username){
 
-        String query = "SELECT `password` FROM " + AccountData.USERSTABLENAME + " WHERE `username`='" + username + "'";
+        String pass = null;
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(password.getBytes("UTF-8"));
+
+            byte bytes[] = md.digest();
+            pass = new String(bytes);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String query = "SELECT `username` FROM " + AccountData.USERSTABLENAME + " WHERE `password`='" + pass + "' and `username`='" + username + "'";
 
         try{
             res = cmd.executeQuery(query);
             res.next();
-            password = res.getString("password");
+            password = res.getString("username");
 
         }catch(Exception e){
             Log.d("non scrive nada", e.getMessage() + e.getCause() + query);
@@ -120,9 +135,23 @@ public class DataBaseInteraction {
 
     public boolean insertNewUser(String username, String password, double lat, double lon, double altitude) throws SQLException{
 
-        String insert = "INSERT INTO " + AccountData.USERSTABLENAME +"(`username`,";
-        insert += "`password`, `status`, `lat`, `lon`, `altitude`) VALUES";
-        insert += "('" + username + "','" + password + "','Never Connected'," + lat + "," + lon + "," + altitude +")";
+        String insert = null;
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(password.getBytes("UTF-8"));
+
+            byte bytes[] = md.digest();
+            String pass = new String(bytes);
+
+            insert = "INSERT INTO " + AccountData.USERSTABLENAME +"(`username`,";
+            insert += "`password`, `status`, `lat`, `lon`, `altitude`) VALUES";
+            insert += "('" + username + "','" + pass + "','Never Connected'," + lat + "," + lon + "," + altitude +")";
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
 
         try{cmd.executeUpdate(insert);}
