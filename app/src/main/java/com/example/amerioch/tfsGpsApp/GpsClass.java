@@ -12,6 +12,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TableRow;
 
 public class GpsClass extends Service implements LocationListener {
 
@@ -26,22 +29,28 @@ public class GpsClass extends Service implements LocationListener {
     // Flag for GPS status
     boolean canGetLocation = false;
 
+    boolean update = false;
+
     Location location; // Location
     double latitude; // Latitude
     double longitude; // Longitude
     double altitude; // Altitude
 
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // 10 meters
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
+    private static final long MIN_TIME_BW_UPDATES = 20; // 20 sec
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
 
-    public GpsClass (Context context) {
-        this.mContext = context;
+    MainScreen parent;
+
+
+    public GpsClass (MainScreen parent, Context context) {
+        mContext = context;
+        this.parent = parent;
         getLocation();
     }
 
@@ -202,6 +211,12 @@ public class GpsClass extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.d("updateLOCATION", "inOnChanged");
+
+        if(update) {
+            Log.d("updateLOCATION", "update");
+            parent.updateView();
+        }
     }
 
 

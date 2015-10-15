@@ -70,6 +70,7 @@ public class Connect extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //Loading bar style
         ctw = new ContextThemeWrapper(this, R.style.Theme_AppCompat_Light_Dialog);
 
@@ -85,55 +86,55 @@ public class Connect extends ActionBarActivity {
                 pd.show();
                 pd.setCanceledOnTouchOutside(false);
 
-                    //Load the Password and Username fields from the GUI
-                    EditText pass = (EditText) findViewById(R.id.password);
+                //Load the Password and Username fields from the GUI
+                EditText pass = (EditText) findViewById(R.id.password);
 
-                    //Enable connections (GPS and Internet)
-                    connectionInternetGPSDialog();
+                //Enable connections (GPS and Internet)
+                connectionInternetGPSDialog();
 
                     /*Create new DB connexion from the user + pass, if the user is not register we won't be able to pass
                     *from this activity to the next one
                     */
-                        Thread thread = new Thread(new Runnable(){
-                            @Override
-                            public void run() {
-                                try {
-                                    dB = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
+                Thread thread = new Thread(new Runnable(){
+                    @Override
+                    public void run() {
+                        try {
+                            dB = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
 
-                                    EditText user = (EditText) findViewById(R.id.username);
-                                    username = user.getText().toString();
-                                    EditText pass = (EditText) findViewById(R.id.password);
-                                    password = pass.getText().toString();
-                                    dB.connectToDB();
-                                    if(verifUser(username,password) && !username.equals("") && !password.equals("")) {
-                                        dB.updatePosition(user.getText().toString(), latitude, longitude, latitude);
-                                        dB.online(user.getText().toString());
-                                        Intent mainScreen = new Intent(Connect.this, MainScreen.class);
+                            EditText user = (EditText) findViewById(R.id.username);
+                            username = user.getText().toString();
+                            EditText pass = (EditText) findViewById(R.id.password);
+                            password = pass.getText().toString();
+                            dB.connectToDB();
+                            if(verifUser(username,password) && !username.equals("") && !password.equals("")) {
+                                dB.updatePosition(user.getText().toString(), latitude, longitude, latitude);
+                                dB.online(user.getText().toString());
+                                Intent mainScreen = new Intent(Connect.this, MainScreen.class);
+                                pd.dismiss();
+                                startActivity(mainScreen);
+                            }else{
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Username or Password not correct", Toast.LENGTH_SHORT).show();
                                         pd.dismiss();
-                                        startActivity(mainScreen);
-                                    }else{
-                                        runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                Toast.makeText(getApplicationContext(), "Username or Password not correct", Toast.LENGTH_SHORT).show();
-                                                pd.dismiss();
-                                            }
-                                        });
                                     }
-                                } catch (SQLException sql) {
-                                    System.out.println("SQLException: " + sql.getMessage() + sql.getCause());
-                                    System.out.println("SQLState: " + sql.getSQLState());
-                                    System.out.println("Error: " + sql.getErrorCode());
-                                    System.out.println("StackTrace: " + sql.getStackTrace());
-                                    runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            Toast.makeText(getApplicationContext(), "ERROR while connecting, try again", Toast.LENGTH_SHORT).show();
-                                            pd.dismiss();
-                                        }
-                                    });
-                                }
+                                });
                             }
-                        });
-                        thread.start();
+                        } catch (SQLException sql) {
+                            System.out.println("SQLException: " + sql.getMessage() + sql.getCause());
+                            System.out.println("SQLState: " + sql.getSQLState());
+                            System.out.println("Error: " + sql.getErrorCode());
+                            System.out.println("StackTrace: " + sql.getStackTrace());
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "ERROR while connecting, try again", Toast.LENGTH_SHORT).show();
+                                    pd.dismiss();
+                                }
+                            });
+                        }
+                    }
+                });
+                thread.start();
 
             }
         });
@@ -142,8 +143,8 @@ public class Connect extends ActionBarActivity {
         this.buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    Intent registerScreen = new Intent(Connect.this, Register.class);
-                    startActivity(registerScreen);
+                Intent registerScreen = new Intent(Connect.this, Register.class);
+                startActivity(registerScreen);
             }
         });
 
@@ -164,14 +165,14 @@ public class Connect extends ActionBarActivity {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
         //For GPS Check
-        this.gps = new GpsClass(Connect.this);
+        this.gps = new GpsClass(null, Connect.this);
 
         // Check if GPS enabled
         if(gps.canGetLocation()) {
 
-             latitude = gps.getLatitude();
-             longitude = gps.getLongitude();
-             latitude = gps.getLatitude();
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+            latitude = gps.getLatitude();
 
         } else {gps.showSettingsAlert();}
 
