@@ -1,7 +1,6 @@
 package com.example.amerioch.tfsGpsApp;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -11,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.security.MessageDigest;
 
 /**
@@ -34,11 +32,9 @@ public class DataBaseInteraction {
         this.username   = username;
 
         //Registrazione del Driver JDBC
-
         try{Class.forName ("com.mysql.jdbc.Driver").newInstance();}
         catch(Exception e){Log.d("non carica", "jdbc");}
     }
-
 
     public void connectToDB() throws SQLException{
         conn = DriverManager.getConnection(url, username, pass);
@@ -78,6 +74,44 @@ public class DataBaseInteraction {
         return friends;
     }
 
+    public ArrayList<String> getFriendsOnline(String username){
+        ArrayList<String> friendsOnline = null;
+        //It should return the friends username
+        String insert = "SELECT friend FROM "+AccountData.FRIENDSTABLENAME+ " INNER JOIN Users ON Friends.friend = Users.username WHERE Friends.username = '"+username+"' and `status`='online'";
+        try{
+            res = cmd.executeQuery(insert);
+            friendsOnline = new ArrayList<String>();
+            while(res.next()) {
+                friendsOnline.add(res.getString("friend"));
+            }
+            Log.d("Ramon", "Friends: " + friendsOnline);
+        }
+        catch(SQLException sql){
+            Log.d("Ramon", "SQL error getting friends");
+        }
+
+        return friendsOnline;
+    }
+
+    public ArrayList<String> getFriendsOffline(String username){
+        ArrayList<String> friendsOffline = null;
+        //It should return the friends username
+        String insert = "SELECT friend FROM "+AccountData.FRIENDSTABLENAME+ " INNER JOIN Users ON Friends.friend = Users.username WHERE Friends.username = '"+username+"' and `status`='offline'";
+        try{
+            res = cmd.executeQuery(insert);
+            friendsOffline = new ArrayList<String>();
+            while(res.next()) {
+                friendsOffline.add(res.getString("friend"));
+            }
+            Log.d("Ramon", "Friends: " + friendsOffline);
+        }
+        catch(SQLException sql){
+            Log.d("Ramon", "SQL error getting friends");
+        }
+
+        return friendsOffline;
+    }
+
     public String verifyPassword(String password, String username){
 
         String pass = null;
@@ -94,7 +128,6 @@ public class DataBaseInteraction {
             e.printStackTrace();
         }
         String query = "SELECT `username` FROM " + AccountData.USERSTABLENAME + " WHERE `password`='" + pass + "' and `username`='" + username + "'";
-
         try{
             res = cmd.executeQuery(query);
             res.next();
@@ -198,7 +231,7 @@ public class DataBaseInteraction {
         String output="No funciona";
         double [] out = null;
         try{
-            res = cmd.executeQuery(insert);
+                res = cmd.executeQuery(insert);
             res.next();
             out = new double[3];
             out[0] = res.getDouble("lat");
@@ -233,6 +266,16 @@ public class DataBaseInteraction {
             Log.d("Error", e.getMessage());
             return false;
         }
+    }
+
+    public boolean isFriend(String username, String friend){
+        ArrayList<String> friends =getFriends(username);
+        for(String f: friends){
+            if(f.equals(friend)){
+             return true;
+            }
+        }
+        return false;
     }
 
     public boolean connectionOK(){

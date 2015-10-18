@@ -12,9 +12,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TableRow;
 
 public class GpsClass extends Service implements LocationListener {
 
@@ -211,12 +208,6 @@ public class GpsClass extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("updateLOCATION", "inOnChanged");
-
-        if(update) {
-            Log.d("updateLOCATION", "update");
-            parent.updateView();
-        }
     }
 
 

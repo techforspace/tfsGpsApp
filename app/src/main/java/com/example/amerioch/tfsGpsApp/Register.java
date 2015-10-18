@@ -3,10 +3,8 @@ package com.example.amerioch.tfsGpsApp;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -14,7 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
