@@ -242,7 +242,6 @@ public class DataBaseInteraction {
             
         }
         catch(Exception e){
-            Log.d("Error", e.getMessage());
             return out;
         }
         return out;

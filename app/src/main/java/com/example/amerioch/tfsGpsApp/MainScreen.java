@@ -324,21 +324,25 @@ public class MainScreen extends Activity implements View.OnClickListener {
                             Location friendLocation = new Location("");
                             //Get position first element latitude, second longitude, third altitude.
                             double[] position = dBInteraction.readPosition(friend);
-                            friendLocation.setLatitude(position[0]);
-                            friendLocation.setLongitude(position[1]);
-                            //save latitude and longitude for the visualization of friends on the map
-                            locationFriends.put(friend, friendLocation);
-                            distance = gps.calculateDistance(gps.getLocation(), friendLocation);
-                            if (distance >= 1000.0) {
-                                distance = distance / 1000.0;
-                                distance = round(distance, 2);
-                                distanceStr = distance.toString() + "km";
-                            } else {
-                                distance = round(distance, 2);
-                                distanceStr = distance.toString() + "m";
+                            if(position!=null) {
+                                friendLocation.setLatitude(position[0]);
+                                friendLocation.setLongitude(position[1]);
+                                //save latitude and longitude for the visualization of friends on the map
+                                locationFriends.put(friend, friendLocation);
+                                distance = gps.calculateDistance(gps.getLocation(), friendLocation);
+                                if (distance >= 1000.0) {
+                                    distance = distance / 1000.0;
+                                    distance = round(distance, 2);
+                                    distanceStr = distance.toString() + "km";
+                                } else {
+                                    distance = round(distance, 2);
+                                    distanceStr = distance.toString() + "m";
+                                }
+                                writeRow(tableOnline, friend, distanceStr);
+                                gps.update = true;
+                            }else{
+                                writeRow(tableOnline, friend, "ERROR");
                             }
-                            writeRow(tableOnline, friend, distanceStr);
-                            gps.update = true;
                         }
 
                     } else {
@@ -365,7 +369,7 @@ public class MainScreen extends Activity implements View.OnClickListener {
                                 }
                                 writeRow(tableOffline, friend, distanceStr);
                             }else{
-                                writeRow(tableOffline, friend, "-");
+                                writeRow(tableOffline, friend, "ERROR");
                             }
                         }
                     } else {
@@ -426,6 +430,8 @@ public class MainScreen extends Activity implements View.OnClickListener {
 
         TableRow t = (TableRow) v;
         TextView friendText = (TextView) t.getChildAt(0);
+        TextView distanceText = (TextView) t.getChildAt(1);
+        String distNum = distanceText.getText().toString();
         String friendName = friendText.getText().toString();
         Location friendLocation = (Location) locationFriends.get(friendName);
         if(friendLocation!=null) {
@@ -435,7 +441,7 @@ public class MainScreen extends Activity implements View.OnClickListener {
             intent.putExtra("latitude", String.valueOf(friendLocation.getLatitude()));
             intent.putExtra("longitude", String.valueOf(friendLocation.getLongitude()));
             intent.putExtra("friendname", friendName);
-            intent.putExtra("distance", distanceStr);
+            intent.putExtra("distance", distNum);
             intent.putExtra("currentLat", String.valueOf(gps.getLatitude()));
             intent.putExtra("currentLong", String.valueOf(gps.getLongitude()));
 
