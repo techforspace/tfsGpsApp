@@ -33,12 +33,11 @@ public class DataBaseInteraction {
 
         //Registrazione del Driver JDBC
         try{Class.forName ("com.mysql.jdbc.Driver").newInstance();}
-        catch(Exception e){Log.d("non carica", "jdbc");}
+        catch(Exception e){}
     }
 
     public void connectToDB() throws SQLException{
         conn = DriverManager.getConnection(url, username, pass);
-        Log.d("RAMON",conn+" ");
         if(conn!=null) {
             //Creation of a Statement object to be able to connect to the DB
             cmd = conn.createStatement();
@@ -51,7 +50,7 @@ public class DataBaseInteraction {
         insert += "`username`='" + username +"' AND `friend`='" + friend + "'";
 
         try{cmd.executeUpdate(insert);}
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        catch(Exception e){return false;}
         return true;
     }
 
@@ -65,10 +64,10 @@ public class DataBaseInteraction {
             while(res.next()) {
                 friends.add(res.getString("friend"));
             }
-            Log.d("Ramon", "Friends: " + friends);
+
         }
         catch(SQLException sql){
-            Log.d("Ramon", "SQL error getting friends");
+
         }
 
         return friends;
@@ -84,10 +83,10 @@ public class DataBaseInteraction {
             while(res.next()) {
                 friendsOnline.add(res.getString("friend"));
             }
-            Log.d("Ramon", "Friends: " + friendsOnline);
+
         }
         catch(SQLException sql){
-            Log.d("Ramon", "SQL error getting friends");
+
         }
 
         return friendsOnline;
@@ -103,10 +102,10 @@ public class DataBaseInteraction {
             while(res.next()) {
                 friendsOffline.add(res.getString("friend"));
             }
-            Log.d("Ramon", "Friends: " + friendsOffline);
+
         }
         catch(SQLException sql){
-            Log.d("Ramon", "SQL error getting friends");
+
         }
 
         return friendsOffline;
@@ -134,7 +133,7 @@ public class DataBaseInteraction {
             password = res.getString("username");
 
         }catch(Exception e){
-            Log.d("non scrive nada", e.getMessage() + e.getCause() + query);
+
         }
         return password;
     }
@@ -145,13 +144,13 @@ public class DataBaseInteraction {
         insert += "`username`='" + username +"' or `friend` ='"+ username +"'";
 
         try{cmd.executeUpdate(insert);}
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        catch(Exception e){return false;}
 
         insert = "DELETE FROM " + AccountData.USERSTABLENAME +" WHERE ";
         insert += "`username`='" + username +"'";
 
         try{cmd.executeUpdate(insert);}
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        catch(Exception e){return false;}
         return true;
     }
 
@@ -162,7 +161,7 @@ public class DataBaseInteraction {
         insert += "('" + username + "','" + friend + "')";
 
         try{cmd.executeUpdate(insert);}
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        catch(Exception e){return false;}
         return true;
     }
 
@@ -181,14 +180,12 @@ public class DataBaseInteraction {
             insert += "`password`, `status`, `lat`, `lon`, `altitude`) VALUES";
             insert += "('" + username + "','" + pass + "','Never Connected'," + lat + "," + lon + "," + altitude +")";
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
 
 
         try{cmd.executeUpdate(insert);}
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);
+        catch(Exception e){
             return false;
         }
         return true;
@@ -201,7 +198,7 @@ public class DataBaseInteraction {
         insert += "WHERE `username` = '" + username +"'";
 
         try{cmd.executeUpdate(insert);}
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        catch(Exception e){return false;}
         return true;
     }
 
@@ -212,7 +209,7 @@ public class DataBaseInteraction {
         insert += "WHERE `username` = '" + username +"'";
 
         try{cmd.executeUpdate(insert);}
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        catch(Exception e){return false;}
         return true;
     }
 
@@ -223,7 +220,7 @@ public class DataBaseInteraction {
         insert += "WHERE `username` = '" + username +"'";
 
         try{cmd.executeUpdate(insert);}
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        catch(Exception e){return false;}
         return true;
     }
 
