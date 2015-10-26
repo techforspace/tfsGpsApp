@@ -1,4 +1,4 @@
-package com.example.amerioch.tfsGpsApp;
+package tfs.geobat;
 
 import android.app.AlertDialog;
 import android.app.Service;

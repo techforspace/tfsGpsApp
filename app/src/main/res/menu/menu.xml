@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu android:layout_height="5dp" android:layout_width="3dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/about"
+        android:title="About" />
+
+    <item android:id="@+id/collaborators"
+        android:title="Collaborators" />
+</menu>

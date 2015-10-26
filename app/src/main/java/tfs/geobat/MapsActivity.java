@@ -1,10 +1,8 @@
-package com.example.amerioch.tfsGpsApp;
+package tfs.geobat;
 
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;

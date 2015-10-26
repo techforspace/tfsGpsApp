@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.amerioch.tfsGpsApp" >
+    package="tfs.geobat" >
 
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,7 +18,7 @@
         android:label="GeoBat"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".Connect"
+            android:name="tfs.geobat.Connect"
             android:label="GeoBat" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,12 +27,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainScreen"
+            android:name="tfs.geobat.MainScreen"
             android:label="GeoBat" >
         </activity>
         <activity
-            android:name=".Register"
+            android:name="tfs.geobat.Register"
             android:label="Register" >
+        </activity>
+        <activity
+            android:name="tfs.geobat.Collaborators"
+            android:label="Collaborators" >
         </activity>
 
         <meta-data
@@ -43,7 +47,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name="tfs.geobat.MapsActivity"
             android:label="@string/title_activity_maps" >
         </activity>
     </application>

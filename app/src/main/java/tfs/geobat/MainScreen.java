@@ -1,16 +1,20 @@
-package com.example.amerioch.tfsGpsApp;
+package tfs.geobat;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -29,7 +33,7 @@ import java.util.HashMap;
 /**
  * Created by ramon on 26/07/15.
  */
-public class MainScreen extends Activity implements View.OnClickListener {
+public class MainScreen extends AppCompatActivity implements View.OnClickListener {
     private TableLayout table;
     private Button addFriendsButton;
     private Button reload;
@@ -449,5 +453,33 @@ public class MainScreen extends Activity implements View.OnClickListener {
             startActivity(intent);
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.about:
+                Uri uri = Uri.parse("http://www.techforspace.com/about/");
+                intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+                return true;
+
+            case R.id.collaborators:
+                intent = new Intent(MainScreen.this, Collaborators.class);
+                startActivity(intent);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

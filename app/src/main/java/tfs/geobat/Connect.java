@@ -1,4 +1,4 @@
-package com.example.amerioch.tfsGpsApp;
+package tfs.geobat;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -7,12 +7,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -31,10 +33,9 @@ import java.util.Set;
 
 
 
-public class Connect extends ActionBarActivity {
+public class Connect extends AppCompatActivity {
 
     private final static int REQUEST_ENABLE_BT = 1;
-    private final static String TAG = "RAMON"; //TAG used to debug the program with Log.d()
 
     private Button buttonSendLogin;
     private Button buttonRegister;
@@ -216,7 +217,7 @@ public class Connect extends ActionBarActivity {
                 }
             }
         } catch (SocketException ex) {
-            Log.e(TAG, ex.toString());
+
         }
         return null;
     }
@@ -259,42 +260,29 @@ public class Connect extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.about:
+                Uri uri = Uri.parse("http://www.techforspace.com/about/");
+                intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+                return true;
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+            case R.id.collaborators:
+                intent = new Intent(Connect.this, Collaborators.class);
+                startActivity(intent);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
-    /*@Override
-    public void onDestroy() {
-        Log.d("onDestroy", "begin");
-
-                                super.onDestroy();
-        Thread thread = new Thread(new Runnable(){
-            @Override
-            public void run() {
-
-                    dB = new DataBaseInteraction(AccountData.URLDB, AccountData.PASS, AccountData.USERNAME);
-                    dB.offline(AccountData.USERSTABLENAME, username);
-                Log.d("onDestroy", "thread");
-
-            }
-        });
-        thread.start();
-        Log.d("onDestroy", "end");
-
-    }*/
 }

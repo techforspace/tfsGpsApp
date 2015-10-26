@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:id="@+id/relativeLayout">
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:background="@drawable/geobat"
+            android:id="@+id/geobat"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+        <ImageView
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:background="@drawable/tfs"
+            android:id="@+id/tfs"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_weight="0.04" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/relativeLayout2">
+    <TextView
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="GeoBat has been developed by Giacomo Giorgi, Pablo Lanaspa and Ramon Gomez from TechForSpace, TFS:"
+        android:id="@+id/text"
+        android:layout_weight="0.04" />
+    <TextView
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:gravity="fill_horizontal"
+        android:text="www.techforspace.com"
+        android:id="@+id/url"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:autoLink="web"
+        android:layout_below="@+id/text"
+        android:layout_centerHorizontal="true" />
+        <TextView
+            android:layout_below="@+id/url"
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="in collaboration with ESA&apos;s CESAR programme:"
+            android:id="@+id/text2"
+            android:layout_weight="0.04" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/relativeLayout3">
+    <ImageView
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:background="@drawable/cesar"
+        android:id="@+id/cesar"/>
+    </RelativeLayout>
+
+
+</LinearLayout>

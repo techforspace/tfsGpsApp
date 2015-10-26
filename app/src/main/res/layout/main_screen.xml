@@ -4,7 +4,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.example.amerioch.tfsGpsApp.MainScreen"
+    tools:context="tfs.geobat.MainScreen"
     android:id="@+id/mainScreen">
     <ScrollView
     android:id="@+id/scrollView1"
@@ -37,7 +37,6 @@
                 android:layout_height="wrap_content"
                 android:text="Add / Remove Friends"
                 android:id="@+id/addFriends"
-                android:layout_above="@+id/distance"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true" />
             </RelativeLayout>

@@ -1,12 +1,17 @@
 
-package com.example.amerioch.tfsGpsApp;
+package tfs.geobat;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,7 +23,7 @@ import java.util.ArrayList;
 /**
  * Created by ramon on 5/08/15.
  */
-public class Register extends Activity{
+public class Register extends AppCompatActivity{
     private Button buttonSubmit;
     private EditText pass;
     private EditText passConfirmation;
@@ -185,5 +190,32 @@ public class Register extends Activity{
         }
 
         return err;
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.about:
+                Uri uri = Uri.parse("http://www.techforspace.com/about/");
+                intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+                return true;
+
+            case R.id.collaborators:
+                intent = new Intent(Register.this, Collaborators.class);
+                startActivity(intent);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

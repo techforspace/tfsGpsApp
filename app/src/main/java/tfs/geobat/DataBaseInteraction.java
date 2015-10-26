@@ -1,4 +1,4 @@
-package com.example.amerioch.tfsGpsApp;
+package tfs.geobat;
 
 import android.util.Log;
 
@@ -188,7 +188,9 @@ public class DataBaseInteraction {
 
 
         try{cmd.executeUpdate(insert);}
-        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);return false;}
+        catch(Exception e){Log.d("non scrive nada", e.getMessage() + e.getCause() + insert);
+            return false;
+        }
         return true;
     }
 
