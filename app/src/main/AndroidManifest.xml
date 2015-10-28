@@ -43,8 +43,8 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBFa2TTs1zXaL9m9jLudZ_6czvhDHl_3g8" />
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/google_maps_key" />
 
         <activity
             android:name="tfs.geobat.MapsActivity"
